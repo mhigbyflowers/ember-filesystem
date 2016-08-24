@@ -1,6 +1,6 @@
 /*jshint node:true*/
 module.exports = {
-  description: ''
+  description: '',
 
   // locals: function(options) {
   //   // Return custom template variables here.
@@ -10,8 +10,6 @@ module.exports = {
   // }
 
   afterInstall: function(options) {
-    return RSVP.all([
-      this.addPackageToProject('ember-network', '^0.3.0');
-    ]);
+    return this.addPackageToProject('ember-network', '^0.3.0');
   }
 };
