@@ -3,10 +3,19 @@ import fetch from 'ember-network/fetch';
 
 export default Ember.Service.extend({
   prompt(){
-    const input = document.createElement('input');
-    input.setAttribute("type","file");
-    input.click();
-    return input.files;
+    return new Promise((resolve, reject) => {
+      const input = document.createElement('input');
+      input.setAttribute("type","file");
+      input.click();
+
+      Ember.$(input).change(() => {
+        if (input.files.length === 0) {
+          return reject();
+        }
+
+        return resolve(input.files);
+      });
+    })
   },
 
   fetch(url, options){
