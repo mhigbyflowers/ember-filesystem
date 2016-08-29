@@ -1,39 +1,34 @@
 import Ember from 'ember';
-import config from 'degenerator-ui/config/environment';
+import fetch from 'ember-network/fetch';
 
-export default Ember.Controller.extend({
-  filesystem: Ember.inject.service(),
-
+export default Ember.Service.extend({
   init() {
     this._super(...arguments);
-    this.set('uploadFile', null);
+    this.input = $('<input type="file">');
   },
 
-  actions:{
-    selectPhoto() {
-      this.get('filesystem').prompt().then((upload) => {
-        this.set('uploadFile', upload);
-      });
-    },
-    uploadImg(formValues){
-      if (!this.uploadFile) {
-        return alert('Yo! Upload a file!');
-      }
+  prompt(){
+    return new Promise((resolve, reject) => {
+      this.input.click();
 
-      this.get('filesystem').fetch(`${config.DS.host}/uploads`, {
-        method: 'POST',
-        headers: {
-          accept: 'application/json',
-        },
-        body: {
-          ...formValues,
-          uploadFile: this.get('uploadFile'),
-        },
-      }).then((res) => res.json())
-      .then((data) => {
-        this.store.push(data);
-        this.transitionToRoute('degenerator.main');
+      this.input.change(function () {
+        if (this.files.length === 0) {
+          return reject();
+        }
+
+        return resolve(this.files);
       });
-    },
+    })
+  },
+
+  fetch(url, options){
+    var data = new FormData();
+    for (var key in options.body) {
+      if (options.body.hasOwnProperty(key)) {
+        data.append(key, options.body[key]);
+      }
+    }
+
+    return fetch(url,{...options, body: data});
   }
 });
