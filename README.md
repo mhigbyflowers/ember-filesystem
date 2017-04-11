@@ -57,8 +57,6 @@ Let's see how this could be used in action with the `mut` helper to modify value
 
 See this example in [Ember Twiddle](https://ember-twiddle.com/06a8ed4dd62a5ae9f4ec95d46a9f7662).
 
-<div style="position: relative; height: 0px; overflow: hidden; max-width: 100%; padding-bottom: 56.25%;"><iframe src="https://ember-twiddle.com/06a8ed4dd62a5ae9f4ec95d46a9f7662?fullScreen=true" style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"></iframe></div>
-
 ## Submitting Files
 
 One of the hard things working with File uploads is the change between JSON body and `form-data`.
@@ -67,4 +65,34 @@ Instead of trying to match every API with an Ember Data extension, using a wrapp
 
 Here is another example that uses a small express server that grabs the meta data from a file and formats it to the JSON API spec.
 
-See the code on [Ember Twiddle]()
+
+```js
+import Ember from 'ember';
+
+export default Ember.Controller.extend({
+  filesystem: Ember.inject.service(),
+  selectedFiles: [],
+
+  actions: {
+    upload(file) {
+      const fetch = this.get('filesystem.fetch');
+
+      fetch('https://arcane-stream-63735.herokuapp.com/upload', {
+          method: 'POST',
+          headers: {
+            accept: 'application/json',
+          },
+          body: { 'profile-image': file[0] },
+        }).then(res => res.json())
+        .then((data) => {
+          const upload = this.store.pushPayload(data);
+        });
+    },
+  }
+});
+```
+
+Notice that we send the file from our file upload, then we call `filesystem.fetch` like a regular `window.fetch` request.
+But, under the hood Ember Filesystem is setting headers and formatting the `body` to fit file uploads (making it easier to work with files without forgetting the edge cases).
+
+See the code on [Ember Twiddle](https://ember-twiddle.com/06a8ed4dd62a5ae9f4ec95d46a9f7662?openFiles=controllers.application.js%2C)
