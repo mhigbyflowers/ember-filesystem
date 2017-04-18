@@ -25,10 +25,18 @@ export default Ember.Service.extend({
     var data = new FormData();
     for (var key in options.body) {
       if (options.body.hasOwnProperty(key)) {
-        data.append(key, options.body[key]);
+        const value = options.body[key];
+
+        if (Array.isArray(value)) {
+          value.forEach((v) => {
+            data.append(key, v);
+          });
+        } else {
+          data.append(key, value);
+        }
       }
     }
 
-    return fetch(url,{...options, body: data});
+    return fetch(url, Object.assign({}, options, {body: data}));
   }
 });
